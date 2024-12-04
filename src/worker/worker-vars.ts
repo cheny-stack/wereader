@@ -19,7 +19,7 @@ export enum ThoughtTxtOptions{
 // "选中后动作"选项
 export enum SelectActionOptions{
     None = 'underlineNone',
-    Copy = 'copy',
+    Copy = 'wr_copy',
     Bg = 'underlineBg',
     Straight = 'underlineStraight',
     HandWrite = 'underlineHandWrite',
