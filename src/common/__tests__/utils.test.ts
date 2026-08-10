@@ -12,30 +12,30 @@ describe('utils', () => {
     describe('getLocalStorage', () => {
         it('should get all local storage when key is null', async () => {
             const mockData = { key1: 'value1', key2: 'value2' };
-            (global.chrome as any).storage.local.get = jest.fn((callback: any) => {
+            (global.chrome as any).storage.session.get = jest.fn((callback: any) => {
                 callback(mockData)
             })
 
             const result = await getLocalStorage(null)
             expect(result).toEqual(mockData)
-            expect((global.chrome as any).storage.local.get)
+            expect((global.chrome as any).storage.session.get)
                 .toHaveBeenCalledWith(expect.any(Function))
         })
 
         it('should get specific key from local storage', async () => {
             const mockData = { testKey: 'testValue' };
-            (global.chrome as any).storage.local.get = jest.fn((keys: any, callback: any) => {
+            (global.chrome as any).storage.session.get = jest.fn((keys: any, callback: any) => {
                 callback(mockData)
             })
 
             const result = await getLocalStorage('testKey')
             expect(result).toBe('testValue')
-            expect((global.chrome as any).storage.local.get).toHaveBeenCalledWith(['testKey'], expect.any(Function))
+            expect((global.chrome as any).storage.session.get).toHaveBeenCalledWith(['testKey'], expect.any(Function))
         })
 
         it('should reject with error message when chrome runtime has error', async () => {
             (global.chrome as any).runtime.lastError = { message: 'Test error' };
-            (global.chrome as any).storage.local.get = jest.fn((keys: any, callback: any) => {
+            (global.chrome as any).storage.session.get = jest.fn((keys: any, callback: any) => {
                 if (typeof keys === 'function') {
                     // Single parameter callback case
                     keys({})
@@ -52,41 +52,41 @@ describe('utils', () => {
     describe('getSyncStorage', () => {
         it('should get all sync storage when key is null', async () => {
             const mockData = { config1: 'value1', config2: 'value2' };
-            (global.chrome as any).storage.sync.get = jest.fn((keys: any, callback: any) => {
+            (global.chrome as any).storage.session.get = jest.fn((keys: any, callback: any) => {
                 callback(mockData)
             })
 
             const result = await getSyncStorage(null)
-            expect(result).toEqual(mockData)
-            expect((global.chrome as any).storage.sync.get)
-                .toHaveBeenCalledWith(null, expect.any(Function))
+            expect(result).toEqual(expect.objectContaining(mockData))
+            expect((global.chrome as any).storage.session.get)
+                .toHaveBeenCalledWith(expect.arrayContaining(['backupName']), expect.any(Function))
         })
 
         it('should get specific key from sync storage', async () => {
             const mockData = { testKey: 'testValue' };
-            (global.chrome as any).storage.sync.get = jest.fn((keys: any, callback: any) => {
+            (global.chrome as any).storage.session.get = jest.fn((keys: any, callback: any) => {
                 callback(mockData)
             })
 
             const result = await getSyncStorage('testKey')
             expect(result).toBe('testValue')
-            expect((global.chrome as any).storage.sync.get).toHaveBeenCalledWith(['testKey'], expect.any(Function))
+            expect((global.chrome as any).storage.session.get).toHaveBeenCalledWith(['testKey'], expect.any(Function))
         })
 
         it('should handle array of keys', async () => {
             const mockData = { key1: 'value1', key2: 'value2' };
-            (global.chrome as any).storage.sync.get = jest.fn((keys: any, callback: any) => {
+            (global.chrome as any).storage.session.get = jest.fn((keys: any, callback: any) => {
                 callback(mockData)
             })
 
             const result = await getSyncStorage(['key1', 'key2'])
             expect(result).toEqual(mockData)
-            expect((global.chrome as any).storage.sync.get).toHaveBeenCalledWith(['key1', 'key2'], expect.any(Function))
+            expect((global.chrome as any).storage.session.get).toHaveBeenCalledWith(['key1', 'key2'], expect.any(Function))
         })
 
         it('should reject with error message when chrome runtime has error', async () => {
             (global.chrome as any).runtime.lastError = { message: 'Sync error' };
-            (global.chrome as any).storage.sync.get = jest.fn((keys: any, callback: any) => {
+            (global.chrome as any).storage.session.get = jest.fn((keys: any, callback: any) => {
                 callback({})
             })
 
@@ -97,12 +97,12 @@ describe('utils', () => {
     describe('getConfig', () => {
         it('should return sync storage as config', async () => {
             const mockConfig = { setting1: 'value1', setting2: 'value2' };
-            (global.chrome as any).storage.sync.get = jest.fn((keys: any, callback: any) => {
+            (global.chrome as any).storage.session.get = jest.fn((keys: any, callback: any) => {
                 callback(mockConfig)
             })
 
             const result = await getConfig()
-            expect(result).toEqual(mockConfig)
+            expect(result).toEqual(expect.objectContaining(mockConfig))
         })
     })
 

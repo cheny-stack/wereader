@@ -143,14 +143,14 @@ function initFancyBox() {
     }
 
     $(function () { // 比 onload 事件先执行
-        chrome.storage.sync.get(['enableFancybox'], function (result) {
+        chrome.storage.session.get(['enableFancybox'], function (result) {
             if (result.enableFancybox) {
                 bindFancyBox()
                 fancyboxTargetObserver()
                 // 处理切换章节后失效的问题
                 const content = $('.app_content')[0] || $('.wr_horizontalReader_app_content')[0]
                 content.arrive('.readerChapterContent', function () {
-                    chrome.storage.sync.get(['enableFancybox'], function (r) {
+                    chrome.storage.session.get(['enableFancybox'], function (r) {
                         if (r.enableFancybox) {
                             bindFancyBox()
                             fancyboxTargetObserver()

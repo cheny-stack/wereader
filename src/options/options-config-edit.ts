@@ -1,5 +1,6 @@
 /* 书本导出配置功能 */
 import $ from 'jquery'
+import { getSyncStorage } from '../common/utils'
 import { main } from './options-main'
 import { updateStorageArea, catchErr } from './options-utils'
 import {
@@ -14,7 +15,7 @@ function renameProfile() {
     // 确认
     $('#promptConfirmButton')[0].onclick = function () {
     // 修改 local 数据
-        chrome.storage.local.get(function (settings) {
+        chrome.storage.session.get(function (settings) {
             console.log('#promptInput val: ' + input.val())
             if (input.val() === '') {
                 input.attr('placeholder', '请输入新的名称')
@@ -49,7 +50,7 @@ function deleteProfile() {
     // 确认
     $('#confirmButton')[0].onclick = function () {
     // 删除 local 数据
-        chrome.storage.local.get(function (settings) {
+        chrome.storage.session.get(function (settings) {
             const currentSelect = $('#profileNamesInput').val() as string
             if (currentSelect === DEFAULT_BACKUPNAME) return
             delete settings[BACKUPKEY][currentSelect]
@@ -72,7 +73,7 @@ function deleteProfile() {
 
 /* 新建设置 */
 function addProfile() {
-    chrome.storage.local.get(function (settings) {
+    chrome.storage.session.get(function (settings) {
         const promptContainer = $('#promptContainer')
         $('#promptLabel').text('请输入这个新的配置文件名')
         const promptInput = $('#promptInput')
@@ -86,10 +87,11 @@ function addProfile() {
                 promptInput.attr('placeholder', '该配置名已存在，请重新输入')
             } else {
                 // 在 local 中新建设置（以 sync 中的数据为值）
-                chrome.storage.sync.get(function (setting) {
+                getSyncStorage().then(setting => {
                     settings[BACKUPKEY][profileName] = setting
-                    setting[BACKUPNAME] = profileName
-                    updateStorageArea({ setting: setting, settings: settings }, function () {
+                    const config = setting as {[key: string]: unknown}
+                    config[BACKUPNAME] = profileName
+                    updateStorageArea({ setting: config, settings: settings }, function () {
                         promptContainer.css('display', 'none')
                         promptInput.val('')
                         promptInput.attr('placeholder', '')
@@ -123,7 +125,7 @@ function initConfigSelect(setting: { [key: string]: any}, settings: { [key: stri
     const currentProfile = setting[BACKUPNAME]
     if (settings[BACKUPKEY][currentProfile] === undefined) { // 处理当前配置在 local 中不存在的情况
         settings[BACKUPKEY][currentProfile] = setting
-        chrome.storage.local.set(settings, function () {
+        chrome.storage.session.set(settings, function () {
             if (catchErr('initialize'))console.warn(STORAGE_ERRORMSG)
         })
     }
@@ -143,11 +145,11 @@ function initConfigSelect(setting: { [key: string]: any}, settings: { [key: stri
     // 选项改变则重载
     $(profileNamesSelect).on('change', function () {
         const profileName = this.value
-        chrome.storage.local.get(function (configs) {
+        chrome.storage.session.get(function (configs) {
             const conf = configs[BACKUPKEY][profileName]
             if (conf === undefined) return
             conf[BACKUPNAME] = profileName
-            chrome.storage.sync.set(conf, function () {
+            chrome.storage.session.set(conf, function () {
                 if (catchErr('initialize'))console.warn(STORAGE_ERRORMSG)
                 main()
             })

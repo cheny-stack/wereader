@@ -2,6 +2,7 @@ import './mp.css'
 
 import $ from 'jquery'
 
+import { getSyncStorage } from '../common/utils'
 import { mpTypeJson } from '../types/mpTypes'
 import { timeConverter } from './mp-utils'
 
@@ -71,8 +72,8 @@ $(function () {
         }
         /* 公众号内容初始化 */
         document.title = data.reviews[0].review.mpInfo.mp_name
-        chrome.storage.sync.get(function (sync) {
-            $('#webook_mp_list').html(getHtml(data, sync))
+        getSyncStorage().then(sync => {
+            $('#webook_mp_list').html(getHtml(data, sync as {[key: string]: unknown}))
             $('#webook_mp_load_more').data('bookid', bookId)
             $('#webook_mp_load_more').data('offset', 10)
             $('#webook_mp_box').css('display', 'block')
@@ -95,8 +96,9 @@ $(function () {
                 alert('已加载全部')
                 return
             }
-            chrome.storage.sync.get(function (sync) {
-                $('#webook_mp_list').append(getHtml(data, sync.mpShrink))
+            getSyncStorage().then(sync => {
+                const config = sync as {[key: string]: unknown}
+                $('#webook_mp_list').append(getHtml(data, config))
                 const loadMore = $('#webook_mp_load_more')
                 loadMore.data('bookid', bookId)
                 loadMore.data('offset', Number.parseInt(offset) + 10)
@@ -110,8 +112,9 @@ $(function () {
 
 // 自动翻页
 window.onscroll = function () {
-    chrome.storage.sync.get((sync) => {
-        if (!sync.mpAutoLoad) return
+    getSyncStorage().then(sync => {
+        const config = sync as {[key: string]: unknown}
+        if (!config.mpAutoLoad) return
         const scrollTop = $(this).scrollTop()!
         const scrollHeight = $(document).height()!
         const windowHeight = $(this).height()!

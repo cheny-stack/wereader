@@ -2,8 +2,6 @@ import { IMG_TAG } from '../common/constants'
 import { getLocalStorage } from '../common/utils'
 import { BookData } from '../types/bookData'
 import { ConfigType } from './types/ConfigType'
-// eslint-disable-next-line no-undef
-import Tab = chrome.tabs.Tab
 
 const DefaultBackupName = '默认设置'
 const StorageErrorMsg = '存储出错'
@@ -100,7 +98,7 @@ export async function getBookId(): Promise<string> {
  * @returns bookId 为键，书本相关信息为值的对象
  */
 export async function getBooks(): Promise<{[key: string]: BookData}> {
-    return await getLocalStorage('books') as {[key: string]: BookData}
+    return await getLocalStorage('books') as {[key: string]: BookData} || {}
 }
 /**
  * 获取当前书本信息
@@ -114,56 +112,20 @@ export async function getCurBook(): Promise<BookData> {
  * @returns tabId: bookId 键值对
  */
 export async function getBookIds(): Promise<{[key: number]: string}> {
-    return await getLocalStorage('bookIds') as {[key: number]: string}
-}
-
-/**
- * 获取记录的 tab 信息
- * @returns tabId: Tab 键值对
- */
-export async function getTabs(): Promise<{[key: number]: Tab}> {
-    return await getLocalStorage('tabs') as {[key: number]: Tab} || {}
-}
-
-/**
- * 获取指定 tabId 的 tab 信息
- */
-export async function getTab(tabId: number): Promise<Tab | null> {
-    const tabs = await getTabs()
-    return tabs[tabId]
-}
-
-/**
- * 保存 tab 信息
- */
-export async function saveTab(tab: Tab) {
-    const tabs = await getTabs() || {}
-    if (tab.id) {
-        tabs[tab.id] = tab
-    }
-    chrome.storage.local.set({ tabs }).then().catch()
-}
-
-/**
- * 删除指定 tabId 的 tab 信息
- */
-export async function deleteTab(tabId: number) {
-    const tabs = await getTabs()
-    delete tabs[tabId]
-    chrome.storage.local.set({ tabs }).then().catch()
+    return await getLocalStorage('bookIds') as {[key: number]: string} || {}
 }
 
 /**
  * 初始化 bookIds
  */
 export async function initBookIds() {
-    return chrome.storage.local.set({ bookIds: {} })
+    return chrome.storage.session.set({ bookIds: {} })
 }
 /**
  * 初始化 books
  */
 export async function initBooks() {
-    return chrome.storage.local.set({ books: {} })
+    return chrome.storage.session.set({ books: {} })
 }
 /**
  * 添加信息到当前 book
@@ -172,14 +134,14 @@ export async function addToCurBook(data: BookData) {
     const bookId = await getBookId()
     const books = await getBooks()
     books[bookId] = { ...books[bookId], ...data }
-    return chrome.storage.local.set({ books })
+    return chrome.storage.session.set({ books })
 }
 /**
  * 获取已打开读书页及对应书本正在阅读的章节索引
  * @returns tabId: chapterIdx 键值对
  */
 export async function getChapIdx(): Promise<{[key: number]: string}> {
-    return await getLocalStorage('chapIdx') as {[key: number]: string}
+    return await getLocalStorage('chapIdx') as {[key: number]: string} || {}
 }
 
 export {

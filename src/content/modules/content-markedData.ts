@@ -333,7 +333,7 @@ async function initMarkedDateGetter() {
             sendResponse([false])
             return true
         }
-        chrome.storage.sync.get(['imgTag'], function (result) {
+        chrome.storage.session.get(['imgTag'], function (result) {
             if (result?.imgTag) {
                 const IMG_TAG = result.imgTag
                 const targetTags = getTargetTags(IMG_TAG)

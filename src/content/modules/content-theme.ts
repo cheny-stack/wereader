@@ -112,7 +112,7 @@ function changeTheme(currentFlag: number, event?: JQuery.ClickEvent) {
     }
     curFlag = currentFlag
     updateHorizontalStyle()
-    chrome.storage.sync.set({ flag: currentFlag }, function () {
+    chrome.storage.session.set({ flag: currentFlag }, function () {
         if (chrome.runtime.lastError) alert('存储出错')
     })
 }
@@ -181,7 +181,7 @@ function initTheme() {
     console.log(tag, 'initTheme')
     // 主题初始化（记住上次设置的背景主题）
     document.arrive('.readerControls_item', { onceOnly: true }, function () {
-        chrome.storage.sync.get(['flag'], function (result) {
+        chrome.storage.session.get(['flag'], function (result) {
             console.log(tag, '主题初始化 - ', result.flag)
             curFlag = result.flag
             changeTheme(curFlag)

@@ -1,4 +1,4 @@
-import { ConfigType } from '../worker/worker-vars'
+import { ConfigType, defaultConfig } from '../worker/worker-vars'
 
 export function getLocalStorage(key: string | null = null): Promise<unknown> {
     return new Promise((suc, rej) => {
@@ -10,9 +10,9 @@ export function getLocalStorage(key: string | null = null): Promise<unknown> {
             }
         }
         if (!key) {
-            chrome.storage.local.get(onReceive)
+            chrome.storage.session.get(onReceive)
         } else {
-            chrome.storage.local.get([key], onReceive)
+            chrome.storage.session.get([key], onReceive)
         }
     })
 }
@@ -20,17 +20,19 @@ export function getLocalStorage(key: string | null = null): Promise<unknown> {
 export function getSyncStorage(key: string | null | string[] = null)
     : Promise<ConfigType | unknown> {
     return new Promise((res, rej) => {
-        let keys = null
+        let keys: string[] | null = Object.keys(defaultConfig)
         if (typeof key === 'string') {
             keys = [key]
-        } else {
+        } else if (key !== null) {
             keys = key
         }
-        chrome.storage.sync.get(keys, function (sync) {
+        chrome.storage.session.get(keys, function (sync) {
             if (chrome.runtime.lastError) {
                 rej(chrome.runtime.lastError.message)
             } else if (typeof key === 'string') {
-                res(sync[key])
+                res(sync[key] ?? defaultConfig[key as keyof ConfigType])
+            } else if (key === null) {
+                res({ ...defaultConfig, ...sync })
             } else {
                 res(sync)
             }

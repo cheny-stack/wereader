@@ -305,7 +305,7 @@ export async function setBookId() {
                 notify('信息缺失，请先刷新')
                 return null
             }
-            chrome.storage.local.set({ bookId: bookIds[tab.id] })
+            chrome.storage.session.set({ bookId: bookIds[tab.id] })
             return bookIds[tab.id]
         }
     } catch (e) {
@@ -351,11 +351,11 @@ export async function createMpPage(bookId: string) {
 // 设置供 popup 获取的书架数据
 export async function setShelfData(shelfData: ShelfDataTypeJson | ShelfErrorDataType) {
     if (shelfData) {
-        chrome.storage.local.set({ shelfData })
+        chrome.storage.session.set({ shelfData })
     } else {
-        chrome.storage.local.remove('shelfData')
+        chrome.storage.session.remove('shelfData')
         shelfData = await getShelfData()
-        chrome.storage.local.set({ shelfData })
+        chrome.storage.session.set({ shelfData })
     }
     return shelfData
 }

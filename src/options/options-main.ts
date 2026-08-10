@@ -5,6 +5,7 @@ import { initPrompt } from './options-prompt'
 import { initRegexp } from './options-regexp'
 import { initUnload } from './options-unload'
 import { getRegexpSet } from './options-utils'
+import { getSyncStorage } from '../common/utils'
 
 // 初始化
 function initialize(setting: { [key: string]: unknown}, settings: { [key: string]: unknown}) {
@@ -17,13 +18,13 @@ function initialize(setting: { [key: string]: unknown}, settings: { [key: string
 
 // 入口
 function main() {
-    chrome.storage.sync.get(function (setting) {
+    getSyncStorage().then(setting => {
         console.log('********************************************')
-        console.log('storage.sync', setting)
-        chrome.storage.local.get(function (settings) {
-            console.log('storage.local', settings)
+        console.log('session config', setting)
+        chrome.storage.session.get(function (settings) {
+            console.log('session data', settings)
             console.log('********************************************')
-            initialize(setting, settings)
+            initialize(setting as {[key: string]: unknown}, settings)
             initUnload()
         })
     })

@@ -12,17 +12,12 @@ global.chrome = {
         id: 'test-extension-id'
     },
     storage: {
-        local: {
+        session: {
             get: jest.fn(),
             set: jest.fn(),
             remove: jest.fn(),
-            clear: jest.fn()
-        },
-        sync: {
-            get: jest.fn(),
-            set: jest.fn(),
-            remove: jest.fn(),
-            clear: jest.fn()
+            clear: jest.fn(),
+            setAccessLevel: jest.fn()
         }
     },
     tabs: {

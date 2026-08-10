@@ -21,7 +21,7 @@ chrome.webRequest.onBeforeRequest.addListener(details => {
         bookIds = bookIds || {}
         bookIds[tabId] = bookId
         // 获取 tabId 对应标签页
-        chrome.storage.local.set({ bookIds })
+        chrome.storage.session.set({ bookIds })
     })
 }, { urls: ['*://weread.qq.com/web/book/*'] })
 
@@ -38,7 +38,7 @@ chrome.webRequest.onBeforeRequest.addListener(details => {
         getChapIdx().then(chapIdx => {
             chapIdx = chapIdx || {}
             chapIdx[details.tabId] = jsonData.ci
-            chrome.storage.local.set({ chapIdx })
+            chrome.storage.session.set({ chapIdx })
         })
     }
 }, { urls: ['*://weread.qq.com/web/book/read'] }, ['requestBody'])
@@ -85,7 +85,7 @@ chrome.webRequest.onBeforeSendHeaders.addListener(details => {
         // 保存章节请求 Options
         if (chapInfoFilter(url)) {
             getBookId().then(bookId => {
-                chrome.storage.local.set({
+                chrome.storage.session.set({
                     chapterInfosFetchOptions: {
                         headers: mergedHeaders,
                         ...params,
@@ -97,7 +97,7 @@ chrome.webRequest.onBeforeSendHeaders.addListener(details => {
         }
         // 保存想法请求 Options
         if (reviewFilter(url)) {
-            chrome.storage.local.set({
+            chrome.storage.session.set({
                 reviewFetchOptions: {
                     headers: mergedHeaders,
                     ...params,
@@ -108,7 +108,7 @@ chrome.webRequest.onBeforeSendHeaders.addListener(details => {
         }
         // 保存标注请求 Options
         if (bookmarksFilter(url)) {
-            chrome.storage.local.set({
+            chrome.storage.session.set({
                 bookmarkFetchOptions: {
                     headers: mergedHeaders,
                     ...params,
@@ -119,7 +119,7 @@ chrome.webRequest.onBeforeSendHeaders.addListener(details => {
         }
         // 保存书本信息请求 Options
         if (bookInfoFilter(url)) {
-            chrome.storage.local.set({
+            chrome.storage.session.set({
                 bookInfoFetchOptions: {
                     headers: mergedHeaders,
                     ...params,
@@ -130,7 +130,7 @@ chrome.webRequest.onBeforeSendHeaders.addListener(details => {
         }
         // 保存热门标注请求 Options
         if (bestBookmarksFilter(url)) {
-            chrome.storage.local.set({
+            chrome.storage.session.set({
                 bestBookmarksFetchOptions: {
                     headers: mergedHeaders,
                     ...params,

@@ -20,9 +20,9 @@ function updateStorageArea(
 ) {
     // 存在异步问题，故设置用于处理短时间内需要进行多次设置的情况
     if (configMsg.setting && configMsg.settings) {
-        chrome.storage.sync.set(configMsg.setting, function () {
+        chrome.storage.session.set(configMsg.setting, function () {
             catchErr('updateSyncAndLocal')
-            chrome.storage.local.set(configMsg.settings!, function () {
+            chrome.storage.session.set(configMsg.settings!, function () {
                 if (catchErr('updateSyncAndLocal'))console.warn(STORAGE_ERRORMSG)
                 callback()
             })
@@ -32,12 +32,12 @@ function updateStorageArea(
         const key = configMsg.key
         const value = configMsg.value
         config[key] = value
-        chrome.storage.sync.set(config, function () {
+        chrome.storage.session.set(config, function () {
             if (catchErr('updateSyncAndLocal'))console.warn(STORAGE_ERRORMSG)
-            chrome.storage.local.get(function (settings) {
+            chrome.storage.session.get(function (settings) {
                 const currentProfile = $('#profileNamesInput').val() as string
                 settings[BACKUPKEY][currentProfile][key] = value
-                chrome.storage.local.set(settings, function () {
+                chrome.storage.session.set(settings, function () {
                     if (catchErr('updateSyncAndLocal'))console.warn(STORAGE_ERRORMSG)
                     callback()
                 })

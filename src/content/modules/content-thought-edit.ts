@@ -10,7 +10,7 @@ function initThoughtEdit() {
             const textarea = $('#WriteBookReview')
             // 按键替代，实现字符替换
             const btnClone = $(btn.cloneNode(true)).on('click', () => {
-                chrome.storage.sync.get(['enableThoughtEsc'], function (result) {
+                chrome.storage.session.get(['enableThoughtEsc'], function (result) {
                     if (result.enableThoughtEsc) {
                         const text = textarea.val() as string
                         const newText = text.replace(/</g, '＜').replace(/>/g, '＞')

@@ -15,7 +15,7 @@ function initSelectAction() {
             return
         }
         const storageKey = 'selectAction'
-        chrome.storage.sync.get([storageKey], function (setting) {
+        chrome.storage.session.get([storageKey], function (setting) {
             const underlineBtn = $(`.toolbarItem.${setting[storageKey]}`)
             if (setting[storageKey] !== SelectActionOptions.None && underlineBtn.length > 0) {
                 underlineBtn.trigger('click')

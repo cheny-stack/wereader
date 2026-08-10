@@ -77,7 +77,7 @@ chrome.runtime.onMessage.addListener((
             let shelfForPopup: ShelfForPopupType = await getLocalStorage('shelfForPopup') as ShelfForPopupType
             if (!shelfForPopup) {
                 shelfForPopup = { shelfData: {} }
-                chrome.storage.local.set({ shelfForPopup })
+                chrome.storage.session.set({ shelfForPopup })
             }
             resp = shelfForPopup
             break
@@ -174,7 +174,7 @@ chrome.runtime.onMessage.addListener(function others(
                     mpTempData[msg.bookId] = []
                 }
                 mpTempData[msg.bookId][index] = data
-                chrome.storage.local.set({ mpTempData })
+                chrome.storage.session.set({ mpTempData })
                 sendResponse({ data })
             })
             break

@@ -42,12 +42,12 @@ function updateStorageAreaInBg(configMsg: regexpSetType = {}, callback = functio
     const config: {[key: string]: unknown} = {}
     const { key, value } = configMsg
     config[key] = value
-    chrome.storage.sync.set(config, function () {
+    chrome.storage.session.set(config, function () {
         if (catchErr('bg.updateSyncAndLocal'))console.error(StorageErrorMsg)
-        chrome.storage.local.get(function (settings) {
+        chrome.storage.session.get(function (settings) {
             const currentProfile = configMsg.currentProfile!
             settings[BackupKey][currentProfile][key] = value
-            chrome.storage.local.set(settings, function () {
+            chrome.storage.session.set(settings, function () {
                 if (catchErr('bg.updateSyncAndLocal'))console.error(StorageErrorMsg)
                 callback()
             })
