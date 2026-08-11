@@ -20,6 +20,7 @@ jest.mock('sweetalert2', () => ({
 
 import {
     DOUBLE_CTRL_INTERVAL_MS,
+    SHORTCUT_EXTENSION_ID,
     documentCtrlDown,
     documentCtrlUp,
     getVisibleDragBounds,
@@ -88,6 +89,10 @@ describe('double Ctrl drag selection', () => {
             configurable: true,
             value: jest.fn(() => mouseTarget)
         })
+        const sendMessage = chrome.runtime.sendMessage as jest.Mock
+        sendMessage.mockImplementation((extensionId, message, callback) => {
+            callback({ ok: true })
+        })
     })
 
     afterEach(() => {
@@ -127,6 +132,11 @@ describe('double Ctrl drag selection', () => {
             button: 0,
             buttons: 0
         })
+        expect(chrome.runtime.sendMessage).toHaveBeenCalledWith(
+            SHORTCUT_EXTENSION_ID,
+            { type: 'TRIGGER_CLIPBOARD_WORKFLOW' },
+            expect.any(Function)
+        )
     })
 
     it('does not trigger after the double-tap interval', async () => {

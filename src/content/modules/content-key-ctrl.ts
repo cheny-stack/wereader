@@ -22,6 +22,8 @@ const DOUBLE_CTRL_INTERVAL_MS = 400
 const DRAG_EDGE_INSET_PX = 4
 const DRAG_STEPS = 6
 const DRAG_STEP_DELAY_MS = 16
+const CLIPBOARD_SETTLE_DELAY_MS = 300
+const SHORTCUT_EXTENSION_ID = 'jblmhiojcjldlffgnmhfflcdpofddocn'
 
 type DragBounds = {
     startX: number,
@@ -99,12 +101,41 @@ async function requestDragSelection() {
     try {
         // eslint-disable-next-line no-use-before-define
         await dispatchDragSelection(bounds)
+        // eslint-disable-next-line no-use-before-define
+        await sleep(CLIPBOARD_SETTLE_DELAY_MS)
+        try {
+            // eslint-disable-next-line no-use-before-define
+            await triggerShortcutExtensionWorkflow()
+        } catch (error) {
+            console.error('Failed to trigger reading shortcut extension:', error)
+            mySweetAlert({ alertMsg: { icon: 'warning', title: '朗读扩展触发失败' } })
+        }
     } catch (error) {
         console.error('Failed to drag-select reader content:', error)
         mySweetAlert({ alertMsg: { icon: 'warning', title: '模拟文字选择失败' } })
     } finally {
         dragInProgress = false
     }
+}
+
+function triggerShortcutExtensionWorkflow() {
+    return new Promise<void>((resolve, reject) => {
+        chrome.runtime.sendMessage(
+            SHORTCUT_EXTENSION_ID,
+            { type: 'TRIGGER_CLIPBOARD_WORKFLOW' },
+            response => {
+                if (chrome.runtime.lastError) {
+                    reject(new Error(chrome.runtime.lastError.message))
+                    return
+                }
+                if (!response?.ok) {
+                    reject(new Error(response?.error || 'Shortcut extension rejected the workflow'))
+                    return
+                }
+                resolve()
+            }
+        )
+    })
 }
 
 function sleep(ms: number) {
@@ -206,10 +237,12 @@ function initCtrlKey() {
 
 export {
     DOUBLE_CTRL_INTERVAL_MS,
+    SHORTCUT_EXTENSION_ID,
     dispatchDragSelection,
     documentCtrlDown,
     documentCtrlUp,
     getVisibleDragBounds,
     initCtrlKey,
-    resetCtrlKeyState
+    resetCtrlKeyState,
+    triggerShortcutExtensionWorkflow
 }
