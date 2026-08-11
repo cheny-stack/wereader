@@ -2,31 +2,38 @@ import $ from 'jquery'
 
 import { SelectActionOptions } from '../../worker/worker-vars'
 import { hideSelection, hideToolbar } from './content-hide'
+import { scheduleShortcutExtensionWorkflow } from './content-shortcut-workflow'
+
+function selectActionIncludesCopy(selectAction: unknown) {
+    return typeof selectAction === 'string' && selectAction.includes(SelectActionOptions.Copy)
+}
+
+// 点击选中后动作对应的工具栏元素
+// eslint-disable-next-line @typescript-eslint/ban-types
+function clickTarget(callback?: Function) {
+    // Ctrl 按键按下时不点击
+    // TODO 支持按照禁用时的点击选项改变选中后动作
+    if (window.pressedKeys.get(17)) {
+        if (callback) callback()
+        return
+    }
+    const storageKey = 'selectAction'
+    chrome.storage.session.get([storageKey], function (setting) {
+        const selectAction = setting[storageKey]
+        const underlineBtn = $(`.toolbarItem.${selectAction}`)
+        if (selectAction !== SelectActionOptions.None && underlineBtn.length > 0) {
+            underlineBtn.trigger('click')
+            if (selectActionIncludesCopy(selectAction)) scheduleShortcutExtensionWorkflow()
+            hideToolbar()
+            hideSelection()
+        }
+        // 重新监听
+        if (callback) callback()
+    })
+}
 
 function initSelectAction() {
     console.log('initSelectAction')
-    // 点击元素
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    const clickTarget = (callback?: Function) => {
-        // Ctrl 按键按下时不点击
-        // TODO 支持按照禁用时的点击选项改变选中后动作
-        if (window.pressedKeys.get(17)) {
-            if (callback) callback()
-            return
-        }
-        const storageKey = 'selectAction'
-        chrome.storage.session.get([storageKey], function (setting) {
-            const underlineBtn = $(`.toolbarItem.${setting[storageKey]}`)
-            if (setting[storageKey] !== SelectActionOptions.None && underlineBtn.length > 0) {
-                underlineBtn.trigger('click')
-                hideToolbar()
-                hideSelection()
-            }
-            // 重新监听
-            if (callback) callback()
-        })
-    }
-
     // 标注面板的监听函数：在标注面板属性值改变时调用
     const onToolbarAttrChanged = (mutationsList: MutationRecord[], observer: MutationObserver) => {
         console.log('Toolbar 属性改变')
@@ -93,4 +100,8 @@ function initSelectAction() {
     })
 }
 
-export { initSelectAction }
+export {
+    clickTarget,
+    initSelectAction,
+    selectActionIncludesCopy
+}

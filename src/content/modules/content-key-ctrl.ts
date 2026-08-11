@@ -20,10 +20,10 @@ window.pressedKeys = new Map<number, boolean>()
 
 const DOUBLE_CTRL_INTERVAL_MS = 400
 const DRAG_EDGE_INSET_PX = 4
-const DRAG_STEPS = 6
-const DRAG_STEP_DELAY_MS = 16
-const CLIPBOARD_SETTLE_DELAY_MS = 300
-const SHORTCUT_EXTENSION_ID = 'jblmhiojcjldlffgnmhfflcdpofddocn'
+const DRAG_STEPS = 20
+const DRAG_STEP_DELAY_MS = 30
+const DRAG_PRESS_DELAY_MS = 80
+const DRAG_RELEASE_DELAY_MS = 80
 
 type DragBounds = {
     startX: number,
@@ -101,41 +101,12 @@ async function requestDragSelection() {
     try {
         // eslint-disable-next-line no-use-before-define
         await dispatchDragSelection(bounds)
-        // eslint-disable-next-line no-use-before-define
-        await sleep(CLIPBOARD_SETTLE_DELAY_MS)
-        try {
-            // eslint-disable-next-line no-use-before-define
-            await triggerShortcutExtensionWorkflow()
-        } catch (error) {
-            console.error('Failed to trigger reading shortcut extension:', error)
-            mySweetAlert({ alertMsg: { icon: 'warning', title: '朗读扩展触发失败' } })
-        }
     } catch (error) {
         console.error('Failed to drag-select reader content:', error)
         mySweetAlert({ alertMsg: { icon: 'warning', title: '模拟文字选择失败' } })
     } finally {
         dragInProgress = false
     }
-}
-
-function triggerShortcutExtensionWorkflow() {
-    return new Promise<void>((resolve, reject) => {
-        chrome.runtime.sendMessage(
-            SHORTCUT_EXTENSION_ID,
-            { type: 'TRIGGER_CLIPBOARD_WORKFLOW' },
-            response => {
-                if (chrome.runtime.lastError) {
-                    reject(new Error(chrome.runtime.lastError.message))
-                    return
-                }
-                if (!response?.ok) {
-                    reject(new Error(response?.error || 'Shortcut extension rejected the workflow'))
-                    return
-                }
-                resolve()
-            }
-        )
-    })
 }
 
 function sleep(ms: number) {
@@ -166,6 +137,7 @@ async function dispatchDragSelection(bounds: DragBounds) {
     } = bounds
     dispatchMouseEvent('mousemove', startX, startY, 0)
     dispatchMouseEvent('mousedown', startX, startY, 1)
+    await sleep(DRAG_PRESS_DELAY_MS)
 
     for (let step = 1; step <= DRAG_STEPS; step++) {
         const progress = step / DRAG_STEPS
@@ -176,6 +148,7 @@ async function dispatchDragSelection(bounds: DragBounds) {
         dispatchMouseEvent('mousemove', x, y, 1)
     }
 
+    await sleep(DRAG_RELEASE_DELAY_MS)
     dispatchMouseEvent('mouseup', endX, endY, 0)
 }
 
@@ -237,12 +210,10 @@ function initCtrlKey() {
 
 export {
     DOUBLE_CTRL_INTERVAL_MS,
-    SHORTCUT_EXTENSION_ID,
     dispatchDragSelection,
     documentCtrlDown,
     documentCtrlUp,
     getVisibleDragBounds,
     initCtrlKey,
-    resetCtrlKeyState,
-    triggerShortcutExtensionWorkflow
+    resetCtrlKeyState
 }

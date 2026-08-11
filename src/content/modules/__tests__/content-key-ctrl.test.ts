@@ -20,7 +20,6 @@ jest.mock('sweetalert2', () => ({
 
 import {
     DOUBLE_CTRL_INTERVAL_MS,
-    SHORTCUT_EXTENSION_ID,
     documentCtrlDown,
     documentCtrlUp,
     getVisibleDragBounds,
@@ -89,10 +88,6 @@ describe('double Ctrl drag selection', () => {
             configurable: true,
             value: jest.fn(() => mouseTarget)
         })
-        const sendMessage = chrome.runtime.sendMessage as jest.Mock
-        sendMessage.mockImplementation((extensionId, message, callback) => {
-            callback({ ok: true })
-        })
     })
 
     afterEach(() => {
@@ -109,34 +104,25 @@ describe('double Ctrl drag selection', () => {
         tapCtrl()
         await jest.runAllTimersAsync()
 
-        expect(dispatchedEvents.map(event => event.type)).toEqual([
-            'mousemove',
-            'mousedown',
-            'mousemove',
-            'mousemove',
-            'mousemove',
-            'mousemove',
-            'mousemove',
-            'mousemove',
-            'mouseup'
+        expect(dispatchedEvents).toHaveLength(23)
+        expect(dispatchedEvents.slice(0, 2).map(event => event.type)).toEqual([
+            'mousemove', 'mousedown'
         ])
+        expect(dispatchedEvents.slice(2, 22).every(event => event.type === 'mousemove')).toBe(true)
+        expect(dispatchedEvents[22].type).toBe('mouseup')
         expect(dispatchedEvents[1]).toMatchObject({
             clientX: 104,
             clientY: 54,
             button: 0,
             buttons: 1
         })
-        expect(dispatchedEvents[8]).toMatchObject({
+        expect(dispatchedEvents[22]).toMatchObject({
             clientX: 1096,
             clientY: 746,
             button: 0,
             buttons: 0
         })
-        expect(chrome.runtime.sendMessage).toHaveBeenCalledWith(
-            SHORTCUT_EXTENSION_ID,
-            { type: 'TRIGGER_CLIPBOARD_WORKFLOW' },
-            expect.any(Function)
-        )
+        expect(chrome.runtime.sendMessage).not.toHaveBeenCalled()
     })
 
     it('does not trigger after the double-tap interval', async () => {
