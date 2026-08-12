@@ -22,6 +22,8 @@
 
 3. 进入页面后，先打开 `开发者模式`，再点击 `加载已解压的扩展程序`，找到前面解压得到的文件夹 `wereader`，**单击**该文件夹，这时候文件夹被选中，点击 `选择文件夹` 即可。
 
+开发版本的 manifest 内置了固定公钥，因此扩展 ID 固定为 `doiijkhmhndplbjfmdemonkmbfhkhgno`。移动或重新选择扩展目录不会改变该 ID。
+
 [查看演示](./res/README/install.gif)
 
 ## 功能

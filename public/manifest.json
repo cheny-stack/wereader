@@ -1,5 +1,6 @@
 {
     "manifest_version": 3,
+    "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA3E/2toPvwpKBQYP3GU9pdRDobD6oO1yrMQZtI6MF2PRZgb0Mpwhdt6wP1Vszv20wWeaVfLHT8mSjryADfbsR28j5l4fz53/w5P/fAcY55hN/CihIxSb+vrh6/OlVlKF3WhbnU9//E4s0dTTamwqvdGbGnmDg8zNkU9vYiONl8mWevUn1BMsIY/Bh5ls4ShyzXSHHZC6mCEQZ5uIfLSX1hxHVl6ZgqZAN2KHljg2D0oWHqh/LO3XMfOx8lJmoUJEml3/Nualmju8YUa6rf6Yq8i/952SVry4OyiW339sFauIAgDAZ/nBfWNKgBcRmuNnudjUH6fWC6lUp6QNnm9HqBQIDAQAB",
     "name": "微信读书笔记助手",
     "version": "5.3.1",
     "description": "一个还不错的微信读书笔记工具，方便你导出书本标注等内容，对常使用 Markdown 做笔记的用户比较有帮助。",

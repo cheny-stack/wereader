@@ -1,7 +1,7 @@
 import { mySweetAlert } from './content-utils'
 
 const CLIPBOARD_SETTLE_DELAY_MS = 300
-const SHORTCUT_EXTENSION_ID = 'jblmhiojcjldlffgnmhfflcdpofddocn'
+const SHORTCUT_EXTENSION_ID = 'abjeailncmljeiiibeockpdolobmonha'
 
 let pendingWorkflow: Promise<boolean> | null = null
 
