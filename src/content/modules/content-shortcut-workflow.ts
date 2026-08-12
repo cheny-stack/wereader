@@ -10,11 +10,14 @@ function sleep(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms))
 }
 
-function triggerShortcutExtensionWorkflow() {
+function triggerShortcutExtensionWorkflow(selectedText?: string) {
+    const text = selectedText?.trim()
     return new Promise<void>((resolve, reject) => {
         chrome.runtime.sendMessage(
             SHORTCUT_EXTENSION_ID,
-            { type: 'TRIGGER_CLIPBOARD_WORKFLOW' },
+            text
+                ? { type: 'TRIGGER_TEXT_WORKFLOW', text }
+                : { type: 'TRIGGER_CLIPBOARD_WORKFLOW' },
             response => {
                 if (chrome.runtime.lastError) {
                     reject(new Error(chrome.runtime.lastError.message))
@@ -30,11 +33,13 @@ function triggerShortcutExtensionWorkflow() {
     })
 }
 
-function scheduleShortcutExtensionWorkflow() {
+function scheduleShortcutExtensionWorkflow(selectedText?: string) {
     if (pendingWorkflow) return pendingWorkflow
 
-    pendingWorkflow = sleep(CLIPBOARD_SETTLE_DELAY_MS)
-        .then(triggerShortcutExtensionWorkflow)
+    const text = selectedText?.trim()
+    const waitForClipboard = text ? Promise.resolve() : sleep(CLIPBOARD_SETTLE_DELAY_MS)
+    pendingWorkflow = waitForClipboard
+        .then(() => triggerShortcutExtensionWorkflow(text))
         .then(() => true)
         .catch(error => {
             console.error('Failed to trigger reading shortcut extension:', error)

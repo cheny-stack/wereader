@@ -31,6 +31,9 @@ describe('content select action', () => {
     beforeEach(() => {
         jest.clearAllMocks()
         window.pressedKeys = new Map<number, boolean>()
+        jest.spyOn(window, 'getSelection').mockReturnValue({
+            toString: () => 'selected reader text'
+        } as Selection)
     })
 
     it.each([
@@ -49,7 +52,7 @@ describe('content select action', () => {
         clickTarget()
 
         expect(toolbarButton.trigger).toHaveBeenCalledWith('click')
-        expect(scheduleShortcutExtensionWorkflow).toHaveBeenCalledTimes(1)
+        expect(scheduleShortcutExtensionWorkflow).toHaveBeenCalledWith('selected reader text')
     })
 
     it('does not schedule the external workflow for a non-copy action', () => {

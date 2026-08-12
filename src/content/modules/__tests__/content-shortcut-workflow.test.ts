@@ -49,4 +49,16 @@ describe('shortcut extension workflow scheduler', () => {
             expect.any(Function)
         )
     })
+
+    it('sends selected text immediately without waiting for clipboard copy', async () => {
+        const request = scheduleShortcutExtensionWorkflow(' selected reader text ')
+
+        await Promise.resolve()
+        expect(chrome.runtime.sendMessage).toHaveBeenCalledWith(
+            SHORTCUT_EXTENSION_ID,
+            { type: 'TRIGGER_TEXT_WORKFLOW', text: 'selected reader text' },
+            expect.any(Function)
+        )
+        await expect(request).resolves.toBe(true)
+    })
 })

@@ -22,8 +22,13 @@ function clickTarget(callback?: Function) {
         const selectAction = setting[storageKey]
         const underlineBtn = $(`.toolbarItem.${selectAction}`)
         if (selectAction !== SelectActionOptions.None && underlineBtn.length > 0) {
+            const selectedText = selectActionIncludesCopy(selectAction)
+                ? window.getSelection()?.toString().trim()
+                : undefined
             underlineBtn.trigger('click')
-            if (selectActionIncludesCopy(selectAction)) scheduleShortcutExtensionWorkflow()
+            if (selectActionIncludesCopy(selectAction)) {
+                scheduleShortcutExtensionWorkflow(selectedText)
+            }
             hideToolbar()
             hideSelection()
         }
